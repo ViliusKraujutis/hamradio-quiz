@@ -59,18 +59,12 @@ public class Categories extends RoboListActivity {
 		});
 
 	}
+
+	public void openPdfWindowActivity(View pdflangobutton) {
+		Intent intent = new Intent(this, PdfWindowActivity.class);
+		startActivity(intent);
+	}
 	
-    public void openNewActivity(View pdflangobutton) {
-        Intent intent = new Intent(this, Pdflangas.class);
-        startActivity(intent);
-
-    }
-
-
-
-	
-
-
 	@Override
 	protected void onResume() {
 		super.onResume();

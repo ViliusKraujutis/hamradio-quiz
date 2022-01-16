@@ -33,8 +33,7 @@ android:name="com.lt.lrmd.hamradio.quiz.activity.Settings"
 android:label="@string/title_activity_settings" >
 </activity>
 <activity
-android:name="com.lt.lrmd.hamradio.quiz.activity.Pdflangas"
-android:label="@string/paaiskinimai" >
-</activity>
+    android:name="com.lt.lrmd.hamradio.quiz.activity.PdfWindowActivity"
+    android:label="@string/paaiskinimai"></activity>
 </application>
 </manifest>
