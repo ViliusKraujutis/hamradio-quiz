@@ -1,6 +1,5 @@
 package com.lt.lrmd.hamradio.quiz.fragment;
 
-import roboguice.inject.InjectView;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;

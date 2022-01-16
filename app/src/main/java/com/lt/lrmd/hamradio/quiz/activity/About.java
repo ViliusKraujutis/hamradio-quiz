@@ -1,13 +1,14 @@
 package com.lt.lrmd.hamradio.quiz.activity;
 
-import roboguice.activity.RoboActivity;
 import com.lt.lrmd.hamradio.quiz.R;
+
+import android.app.Activity;
 import android.os.Bundle;
 import android.widget.TextView;
 import android.text.method.ScrollingMovementMethod;
 import android.text.Html;
 
-public class About extends RoboActivity {
+public class About extends Activity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

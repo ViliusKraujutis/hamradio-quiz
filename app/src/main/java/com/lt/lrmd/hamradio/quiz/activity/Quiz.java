@@ -3,9 +3,6 @@ package com.lt.lrmd.hamradio.quiz.activity;
 import java.io.IOException;
 import java.util.Random;
 
-import roboguice.activity.RoboFragmentActivity;
-import roboguice.inject.InjectExtra;
-import roboguice.inject.InjectView;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -20,6 +17,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.fragment.app.FragmentActivity;
+
 import com.google.inject.Inject;
 import com.lt.lrmd.hamradio.quiz.App;
 import com.lt.lrmd.hamradio.quiz.Config;
@@ -32,7 +31,7 @@ import com.lt.lrmd.hamradio.quiz.model.Question;
 import com.lt.lrmd.hamradio.quiz.util.SoundPoolAssistant;
 import com.lt.lrmd.hamradio.quiz.util.Task;
 
-public class Quiz extends RoboFragmentActivity implements QuestionListener {
+public class Quiz extends FragmentActivity implements QuestionListener {
 
 	public static final String CATEGORY_ID_EXTRA = "categoryId";
 	public static final String MODE_EXTRA = "mode";

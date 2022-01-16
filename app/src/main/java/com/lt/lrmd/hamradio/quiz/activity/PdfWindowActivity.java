@@ -6,9 +6,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import roboguice.activity.RoboActivity;
 import com.lt.lrmd.hamradio.quiz.R;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.net.Uri;
@@ -17,7 +17,7 @@ import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 
-public class PdfWindowActivity extends RoboActivity {
+public class PdfWindowActivity extends Activity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

@@ -1,7 +1,5 @@
 package com.lt.lrmd.hamradio.quiz.fragment;
 
-import roboguice.fragment.RoboFragment;
-import roboguice.inject.InjectView;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -11,12 +9,14 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.fragment.app.Fragment;
+
 import com.google.inject.Inject;
 import com.lt.lrmd.hamradio.quiz.App;
 import com.lt.lrmd.hamradio.quiz.R;
 import com.lt.lrmd.hamradio.quiz.model.Question;
 
-public abstract class QuestionFragment extends RoboFragment {
+public abstract class QuestionFragment extends Fragment {
 	/**
 	 * Must be implemented by the parent activity.
 	 */

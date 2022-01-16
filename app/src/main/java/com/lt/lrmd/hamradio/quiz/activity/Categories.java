@@ -1,6 +1,6 @@
 package com.lt.lrmd.hamradio.quiz.activity;
 
-import roboguice.activity.RoboListActivity;
+import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -23,7 +23,7 @@ import com.lt.lrmd.hamradio.quiz.App.AppInitializationListener;
 import com.lt.lrmd.hamradio.quiz.model.Category;
 import com.lt.lrmd.hamradio.quiz.model.DataSource;
 
-public class Categories extends RoboListActivity {
+public class Categories extends ListActivity {
 	private static final String TAG = Categories.class.getSimpleName();
 
 
@@ -64,7 +64,7 @@ public class Categories extends RoboListActivity {
 		Intent intent = new Intent(this, PdfWindowActivity.class);
 		startActivity(intent);
 	}
-	
+
 	@Override
 	protected void onResume() {
 		super.onResume();
