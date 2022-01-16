@@ -19,8 +19,8 @@ android {
 }
 
 dependencies {
-    api 'com.android.support:support-v4:25.4.0'
-    api 'com.android.support:appcompat-v7:25.4.0'
+    api 'androidx.legacy:legacy-support-v4:1.0.0'
+    api 'androidx.appcompat:appcompat:1.0.0'
 
     api files('libs/guice-2.0-no_aop.jar')
     api files('libs/roboguice-2.0.jar')
