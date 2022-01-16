@@ -1,115 +1,97 @@
-package com.lt.lrmd.hamradio.quiz.model;
+package com.lt.lrmd.hamradio.quiz.model
 
-import java.util.Arrays;
+import android.database.Cursor
+import com.lt.lrmd.hamradio.quiz.model.DataSource.QuestionColumns
+import android.os.Parcelable
+import android.os.Parcel
+import com.lt.lrmd.hamradio.quiz.model.Question
+import com.lt.lrmd.hamradio.quiz.util.Util
+import java.util.*
 
-import android.database.Cursor;
-import android.os.Parcel;
-import android.os.Parcelable;
+class Question : QuestionColumns, Parcelable {
+    var id: Long
+        private set
 
-import com.lt.lrmd.hamradio.quiz.model.DataSource.QuestionColumns;
-import com.lt.lrmd.hamradio.quiz.util.Util;
+    /**
+     * The text of the question
+     *
+     * @return the text
+     */
+    var text: String?
+        private set
+    var image: String?
+        private set
+    var audio: String?
+        private set
 
-public class Question implements QuestionColumns, Parcelable {
-	private long mId;
-	private String mText;
-	private String mImage;
-	private String mAudio;
-	private String[] mChoices;
-	private int mAnswer;
+    /**
+     * Choices to present to the user.
+     *
+     * @return the choices
+     */
+    var choices: Array<String>?
+        private set
 
-	/**
-	 * The text of the question
-	 * 
-	 * @return the text
-	 */
-	public String getText() {
-		return mText;
-	}
+    /**
+     * The index of the correct answer in [.getChoices].
+     *
+     * @return the index
+     */
+    var answer: Int
+        private set
 
-	public String getImage() {
-		return mImage;
-	}
+    /**
+     * Create a question from the database
+     */
+    constructor(c: Cursor) {
+        text = c.getString(QuestionColumns.TEXT_INDEX)
+        image = c.getString(QuestionColumns.IMAGE_INDEX)
+        audio = c.getString(QuestionColumns.AUDIO_INDEX)
+        choices = Util.deserialize(c.getBlob(QuestionColumns.CHOICES_INDEX)) as Array<String>
+        answer = c.getInt(QuestionColumns.ANSWER_INDEX)
+        id = c.getLong(QuestionColumns._ID_INDEX)
+    }
 
-	public String getAudio() {
-		return mAudio;
-	}
+    override fun toString(): String {
+        return ("Question [mText=" + text + ", mImage=" + image + ", mAudio="
+                + audio + ", mChoices=" + Arrays.toString(choices)
+                + ", mAnswer=" + answer + "]")
+    }
 
-	/**
-	 * Choices to present to the user.
-	 * 
-	 * @return the choices
-	 */
-	public String[] getChoices() {
-		return mChoices;
-	}
+    private constructor(parcel: Parcel) {
+        id = parcel.readLong()
+        text = parcel.readString()
+        image = parcel.readString()
+        audio = parcel.readString()
+        choices = parcel.createStringArray()
+        answer = parcel.readInt()
+    }
 
-	/**
-	 * The index of the correct answer in {@link #getChoices()}.
-	 * 
-	 * @return the index
-	 */
-	public int getAnswer() {
-		return mAnswer;
-	}
+    override fun writeToParcel(dest: Parcel, flags: Int) {
+        dest.writeLong(id)
+        dest.writeString(text)
+        dest.writeString(image)
+        dest.writeString(audio)
+        dest.writeStringArray(choices)
+        dest.writeInt(answer)
+    }
 
-	public long getId() {
-		return mId;
-	}
+    override fun describeContents(): Int {
+        return 0
+    }
 
-	/**
-	 * Create a question from the database
-	 */
-	public Question(Cursor c) {
-		mText = c.getString(TEXT_INDEX);
-		mImage = c.getString(IMAGE_INDEX);
-		mAudio = c.getString(AUDIO_INDEX);
-		mChoices = (String[]) Util.deserialize(c.getBlob(CHOICES_INDEX));
-		mAnswer = c.getInt(ANSWER_INDEX);
-		mId = c.getLong(_ID_INDEX);
-	}
-
-	@Override
-	public String toString() {
-		return "Question [mText=" + mText + ", mImage=" + mImage + ", mAudio="
-				+ mAudio + ", mChoices=" + Arrays.toString(mChoices)
-				+ ", mAnswer=" + mAnswer + "]";
-	}
-
-	/*
+    companion object {
+        /*
 	 * Parcelable implementation
 	 */
-	public static final Parcelable.Creator<Question> CREATOR = new Parcelable.Creator<Question>() {
-		public Question createFromParcel(Parcel source) {
-			return new Question(source);
-		}
+        val CREATOR: Parcelable.Creator<Question> = object : Parcelable.Creator<Question?> {
+            override fun createFromParcel(source: Parcel): Question? {
+                return Question(source)
+            }
 
-		public Question[] newArray(int size) {
-			return new Question[size];
-		}
-	};
-
-	private Question(Parcel parcel) {
-		mId = parcel.readLong();
-		mText = parcel.readString();
-		mImage = parcel.readString();
-		mAudio = parcel.readString();
-		mChoices = parcel.createStringArray();
-		mAnswer = parcel.readInt();
-	}
-
-	@Override
-	public void writeToParcel(Parcel dest, int flags) {
-		dest.writeLong(mId);
-		dest.writeString(mText);
-		dest.writeString(mImage);
-		dest.writeString(mAudio);
-		dest.writeStringArray(mChoices);
-		dest.writeInt(mAnswer);
-	}
-
-	@Override
-	public int describeContents() {
-		return 0;
-	}
-
+            override fun newArray(size: Int): Array<Question?> {
+                return arrayOfNulls(size)
+            }
+        }
+    }
 }

@@ -1,35 +1,42 @@
-package com.lt.lrmd.hamradio.quiz.util;
+package com.lt.lrmd.hamradio.quiz.util
+
+import java.lang.IllegalArgumentException
+import java.lang.RuntimeException
 
 /**
  * Argument check helpers
  */
-public final class Arguments {
-	private Arguments(){}
-	
-	public static <T> T checkNotNull(T obj, String name){
-		return checkThat(obj != null, obj, "%s must not be null", name);
-	}
-	
-	public static <T> T checkNotNull(T obj){
-		return checkNotNull(obj, "argument");
-	}
-	
-	public static <T> T checkThat(boolean condition, T argument, String message, Object...messageArgs){
-		return checkThat(condition, argument, createThrowable(message, messageArgs));
-	}
-	
-	public static <T> T checkThat(boolean condition, T argument, RuntimeException err){
-		if(!condition) 
-			throw err;
-		return argument;
-	}
-	
-	private static RuntimeException createThrowable(String format, Object...args){
-		if(format == null){
-			format = "Illegal Argument";
-			args = new Object[0];
-		}
-		String message = String.format(format, args);
-		return new IllegalArgumentException(message);
-	}
+object Arguments {
+    fun <T> checkNotNull(obj: T?, name: String?): T {
+        return checkThat(obj != null, obj, "%s must not be null", name)
+    }
+
+    fun <T> checkNotNull(obj: T): T {
+        return checkNotNull(obj, "argument")
+    }
+
+    fun <T> checkThat(
+        condition: Boolean,
+        argument: T?,
+        message: String,
+        vararg messageArgs: Any?
+    ): T {
+        return checkThat(condition, argument, createThrowable(message, *messageArgs))
+    }
+
+    fun <T> checkThat(condition: Boolean, argument: T?, err: RuntimeException?): T? {
+        if (!condition) throw err!!
+        return argument
+    }
+
+    private fun createThrowable(format: String, vararg args: Any?): RuntimeException {
+        var format: String? = format
+        var args = args
+        if (format == null) {
+            format = "Illegal Argument"
+            args = arrayOfNulls<Any>(0)
+        }
+        val message = String.format(format, *args)
+        return IllegalArgumentException(message)
+    }
 }

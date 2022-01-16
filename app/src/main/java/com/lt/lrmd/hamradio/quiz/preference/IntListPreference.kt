@@ -1,26 +1,18 @@
-package com.lt.lrmd.hamradio.quiz.preference;
+package com.lt.lrmd.hamradio.quiz.preference
 
-import android.content.Context;
-import android.preference.ListPreference;
-import android.util.AttributeSet;
+import android.content.Context
+import android.preference.ListPreference
+import android.util.AttributeSet
 
-public class IntListPreference extends ListPreference {
+class IntListPreference : ListPreference {
+    constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs) {}
+    constructor(context: Context?) : super(context) {}
 
-	public IntListPreference(Context context, AttributeSet attrs) {
-		super(context, attrs); 
-	}
+    override fun persistString(value: String): Boolean {
+        return persistInt(Integer.valueOf(value))
+    }
 
-	public IntListPreference(Context context) {
-		super(context); 
-	}
-
-	@Override
-	protected boolean persistString(String value) {
-		return persistInt(Integer.valueOf(value));
-	}
-	
-	@Override
-	protected String getPersistedString(String defaultReturnValue) {
-		return String.valueOf(getPersistedInt(-1));
-	}
+    override fun getPersistedString(defaultReturnValue: String): String {
+        return getPersistedInt(-1).toString()
+    }
 }

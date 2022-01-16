@@ -1,34 +1,33 @@
-package com.lt.lrmd.hamradio.quiz.preference;
+package com.lt.lrmd.hamradio.quiz.preference
 
-import android.content.Context;
-import android.preference.EditTextPreference;
-import android.text.InputType;
-import android.util.AttributeSet;
+import android.content.Context
+import android.preference.EditTextPreference
+import android.text.InputType
+import android.util.AttributeSet
 
-public class IntPreference extends EditTextPreference {
+class IntPreference : EditTextPreference {
+    constructor(context: Context?, attrs: AttributeSet?, defStyle: Int) : super(
+        context,
+        attrs,
+        defStyle
+    ) {
+        configureEditText()
+    }
 
-	public IntPreference(Context context, AttributeSet attrs, int defStyle) {
-		super(context, attrs, defStyle);
-		configureEditText();
-	}
+    constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs) {
+        configureEditText()
+    }
 
-	public IntPreference(Context context, AttributeSet attrs) {
-		super(context, attrs); 
-		configureEditText();
-	}
+    private fun configureEditText() {
+        editText.inputType = InputType.TYPE_CLASS_NUMBER
+    }
 
-	private void configureEditText(){
-		getEditText().setInputType(InputType.TYPE_CLASS_NUMBER);
-	}
-	
-	@Override
-	protected String getPersistedString(String defaultReturnValue) {
-		return String.valueOf(getPersistedInt(-1));
-	}
-	
-	@Override
-	protected boolean persistString(String value) {
-		persistInt(Integer.valueOf(value));
-		return true;
-	}
+    override fun getPersistedString(defaultReturnValue: String): String {
+        return getPersistedInt(-1).toString()
+    }
+
+    override fun persistString(value: String): Boolean {
+        persistInt(Integer.valueOf(value))
+        return true
+    }
 }

@@ -1,102 +1,76 @@
-package com.lt.lrmd.hamradio.quiz.model;
+package com.lt.lrmd.hamradio.quiz.model
 
-import android.database.Cursor;
-import android.os.Parcel;
-import android.os.Parcelable;
+import android.database.Cursor
+import com.lt.lrmd.hamradio.quiz.model.DataSource.CategoryColumns
+import android.os.Parcelable
+import android.os.Parcel
 
-import com.lt.lrmd.hamradio.quiz.model.DataSource.CategoryColumns;
+class Category : CategoryColumns, Parcelable {
+    var id: Long
+        private set
+    var title: String?
+        private set
+    var text: String?
+        private set
+    var icon: String?
+        private set
+    var highScore: Float
+        private set
+    var mode: Int
+        private set
 
-public class Category implements CategoryColumns,Parcelable {
-	private long mId;
-	private String mTitle;
-	private String mText;
-	private String mIcon;
-	private float mHighScore;
-	private int mMode;
-	
-	public Category(Cursor c){
-		mId = c.getLong(_ID_INDEX);
-		mTitle = c.getString(TITLE_INDEX);
-		mText = c.getString(TEXT_INDEX);
-		mIcon = c.getString(ICON_INDEX);
-		mMode = c.getInt(MODE_INDEX);
-		mHighScore = c.getFloat(HIGHSCORE_INDEX);
-	}
+    constructor(c: Cursor) {
+        id = c.getLong(CategoryColumns._ID_INDEX)
+        title = c.getString(CategoryColumns.TITLE_INDEX)
+        text = c.getString(CategoryColumns.TEXT_INDEX)
+        icon = c.getString(CategoryColumns.ICON_INDEX)
+        mode = c.getInt(CategoryColumns.MODE_INDEX)
+        highScore = c.getFloat(CategoryColumns.HIGHSCORE_INDEX)
+    }
 
-	public long getId() {
-		return mId;
-	}
+    fun hasHighScore(): Boolean {
+        return highScore >= 0
+    }
 
-	public String getTitle() {
-		return mTitle;
-	}
-
-	public String getText() {
-		return mText;
-	}
-
-	public String getIcon() {
-		return mIcon;
-	}
-
-	public int getMode(){
-		return mMode;
-	}
-	
-	public float getHighScore(){
-		return mHighScore;
-	}
-	
-	public boolean hasHighScore(){
-		return mHighScore >= 0;
-	}
-	
-	/*
+    /*
 	 * Parcelable implementation
 	 */
-	@Override
-	public void writeToParcel(Parcel dest, int flags) {
-		dest.writeLong(mId);
-		dest.writeString(mTitle);
-		dest.writeString(mText);
-		dest.writeString(mIcon);
-		dest.writeFloat(mHighScore);
-		dest.writeInt(mMode);
-	}
-	
-	
-	@Override
-	public int describeContents() {
-		return 0;
-	}
-	
-	private Category(Parcel source){
-		mId = source.readLong();
-		mTitle = source.readString();
-		mText = source.readString();
-		mIcon = source.readString();
-		mHighScore = source.readFloat();
-		mMode = source.readInt();
-	}
-	
-	public static final Parcelable.Creator<Category> 
-		CREATOR = new Creator<Category>() {
-			
-			@Override
-			public Category[] newArray(int size) {
-				return new Category[size];
-			}
-			
-			@Override
-			public Category createFromParcel(Parcel source) {
-				return new Category(source);
-			}
-		};
-	
-	@Override
-	public String toString() {
-		return "Category [mId=" + mId + ", mTitle=" + mTitle + ", mText="
-				+ mText + ", mIcon=" + mIcon + ",mMode=" + mMode + "]";
-	}
-	
+    override fun writeToParcel(dest: Parcel, flags: Int) {
+        dest.writeLong(id)
+        dest.writeString(title)
+        dest.writeString(text)
+        dest.writeString(icon)
+        dest.writeFloat(highScore)
+        dest.writeInt(mode)
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    private constructor(source: Parcel) {
+        id = source.readLong()
+        title = source.readString()
+        text = source.readString()
+        icon = source.readString()
+        highScore = source.readFloat()
+        mode = source.readInt()
+    }
+
+    override fun toString(): String {
+        return ("Category [mId=" + id + ", mTitle=" + title + ", mText="
+                + text + ", mIcon=" + icon + ",mMode=" + mode + "]")
+    }
+
+    companion object {
+        val CREATOR: Parcelable.Creator<Category> = object : Parcelable.Creator<Category?> {
+            override fun newArray(size: Int): Array<Category?> {
+                return arrayOfNulls(size)
+            }
+
+            override fun createFromParcel(source: Parcel): Category? {
+                return Category(source)
+            }
+        }
+    }
 }

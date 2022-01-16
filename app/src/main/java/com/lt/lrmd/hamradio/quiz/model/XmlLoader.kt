@@ -1,158 +1,162 @@
-package com.lt.lrmd.hamradio.quiz.model;
+package com.lt.lrmd.hamradio.quiz.model
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
+import android.content.Context
+import com.lt.lrmd.hamradio.quiz.model.DataSource.reset
+import com.lt.lrmd.hamradio.quiz.model.DataSource.addCategory
+import com.lt.lrmd.hamradio.quiz.model.DataSource.addQuestion
+import com.lt.lrmd.hamradio.quiz.model.DataSource.updateCategory
+import kotlin.Throws
+import android.util.Xml
+import com.lt.lrmd.hamradio.quiz.model.XmlLoader.XmlHandler
+import com.lt.lrmd.hamradio.quiz.model.XmlLoader.CategoryInfo
+import com.lt.lrmd.hamradio.quiz.model.XmlLoader.QuestionInfo
+import org.xml.sax.Attributes
+import org.xml.sax.SAXException
+import org.xml.sax.helpers.DefaultHandler
+import java.io.IOException
+import java.lang.NumberFormatException
+import java.lang.StringBuilder
+import java.util.ArrayList
 
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
+class XmlLoader(private val context: Context) {
+    interface XmlLoadedListener {
+        fun onXmlLoaded()
+    }
 
-import android.content.Context;
-import android.util.Xml;
+    private class CategoryInfo {
+        var id: Long = 0
+        var title: String? = null
+        var text: String? = null
+        var icon: String? = null
+        var mode = 0
+        var layout = 0
+    }
 
-public class XmlLoader {
-	public interface XmlLoadedListener {
-		void onXmlLoaded();
-	}
+    private class QuestionInfo {
+        var text: String? = null
+        var audio: String? = null
+        var image: String? = null
+        var choices = ArrayList<String>()
+        var answer = 0
+    }
 
-	private static class CategoryInfo {
-		public long id;
-		public String title;
-		public String text;
-		@SuppressWarnings("unused")
-		public String icon;
-		@SuppressWarnings("unused")
-		public int mode;
-		@SuppressWarnings("unused")
-		public int layout;
-	}
+    private val dataSource: DataSource
+    @Throws(IOException::class, SAXException::class)
+    fun load(fileName: String?) {
+        dataSource.reset()
+        val `in` = context.assets.open(fileName!!)
+        Xml.parse(`in`, Xml.Encoding.UTF_8, XmlHandler())
+    }
 
-	private static class QuestionInfo {
-		public String text;
-		public String audio;
-		public String image;
-		public ArrayList<String> choices = new ArrayList<String>();
-		public int answer;
-	} 
+    private inner class XmlHandler : DefaultHandler() {
+        private val chars = StringBuilder()
+        private var category: CategoryInfo? = null
+        private var question: QuestionInfo? = null
+        private var questionCount = 0
+        @Throws(SAXException::class)
+        override fun startElement(
+            uri: String, localName: String, qName: String,
+            attributes: Attributes
+        ) {
+            // don't catch whitespace between tags
+            chars.delete(0, chars.length)
+            if ("category" == localName) {
+                category = CategoryInfo()
+                category!!.id = dataSource.addCategory()
+            } else if ("question" == localName) {
+                question = QuestionInfo()
+            }
+        }
 
-	@SuppressWarnings("unused")
-	private static final String TAG = "QuizXml";
-	private final Context context;
-	private final DataSource dataSource;
-	
-	public XmlLoader(Context context) {
-		this.context = context;
-		this.dataSource = new DataSource(context);
-	}
+        @Throws(SAXException::class)
+        override fun characters(ch: CharArray, start: Int, length: Int) {
+            chars.append(ch, start, length)
+        }
 
-	
-	public void load(String fileName) throws IOException, SAXException {
-		dataSource.reset();
-		InputStream in = context.getAssets().open(fileName);
-		Xml.parse(in, Xml.Encoding.UTF_8, new XmlHandler()); 
-	}
-	
-	private class XmlHandler extends DefaultHandler {
+        @Throws(SAXException::class)
+        override fun endElement(uri: String, localName: String, qName: String) {
+            if ("category" == localName) {
+                finishCategory()
+                category = null
+            } else if ("question" == localName) {
+                finishQuestion()
+            } else if ("title" == localName) {
+                category!!.title = getChars()
+            } else if ("text" == localName) {
+                if (question != null) {
+                    question!!.text = getChars()
+                } else {
+                    category!!.text = getChars()
+                }
+            } else if ("image" == localName) {
+                question!!.image = getChars()
+            } else if ("audio" == localName) {
+                question!!.audio = getChars()
+            } else if ("choice" == localName) {
+                question!!.choices.add(getChars())
+            } else if ("answer" == localName) {
+                question!!.answer = parseAnswer()
+            }
+        }
 
-		
-		private StringBuilder chars = new StringBuilder();
-		private CategoryInfo category;
-		private QuestionInfo question;
-		private int questionCount;
+        @Throws(SAXException::class)
+        private fun parseAnswer(): Int {
+            val ch = getChars()
+            return try {
+                Integer.valueOf(ch)
+            } catch (e: NumberFormatException) {
+                throw throwException("invalid answer index $ch")
+            }
+        }
 
-		@Override
-		public void startElement(String uri, String localName, String qName,
-				Attributes attributes) throws SAXException {
-			// don't catch whitespace between tags
-			chars.delete(0, chars.length());
-			
-			if ("category".equals(localName)) {
-				category = new CategoryInfo();
-				category.id = dataSource.addCategory();
-			} else if ("question".equals(localName)) {
-				question = new QuestionInfo();
-			}
-			
-		}
+        @Throws(SAXException::class)
+        private fun finishQuestion() {
+            if (question!!.choices.size == 0) throwException("must have at least one choice")
+            if (question!!.answer < 0
+                || question!!.answer >= question!!.choices.size
+            ) throwException("invalid answer index")
+            if (question!!.text == null && question!!.image == null && question!!.audio == null) throwException(
+                "question must contain at least one of text, image, and audio tags"
+            )
+            dataSource.addQuestion(
+                category!!.id, question!!.text, question!!.image,
+                question!!.audio, question!!.choices, question!!.answer
+            )
+            question = null
+            questionCount++
+        }
 
-		@Override
-		public void characters(char[] ch, int start, int length)
-				throws SAXException {
-			chars.append(ch, start, length);
-		}
+        @Throws(SAXException::class)
+        private fun finishCategory() {
+            if (category!!.title == null) throwException("missing category title")
+            dataSource.updateCategory(
+                category!!.id, category!!.title,
+                category!!.text, "", 0
+            )
+            category = null
+        }
 
-		@Override
-		public void endElement(String uri, String localName, String qName)
-				throws SAXException {
+        @Throws(SAXException::class)
+        private fun throwException(message: String): SAXException {
+            throw SAXException(
+                "error while parsing question "
+                        + questionCount + " in category "
+                        + (if (category == null) "??" else category!!.id) + ": " + message
+            )
+        }
 
-			if ("category".equals(localName)) { 
-				finishCategory();
-				category = null;
-			} else if ("question".equals(localName)) {
-				finishQuestion(); 
-			} else if ("title".equals(localName)) {
-				category.title = getChars();
-			} else if ("text".equals(localName)) {
-				if (question != null) {
-					question.text = getChars();
-				} else {
-					category.text = getChars();
-				}
-			} else if ("image".equals(localName)) {
-				question.image = getChars();
-			} else if ("audio".equals(localName)) {
-				question.audio = getChars();
-			} else if ("choice".equals(localName)) {
-				question.choices.add(getChars());
-			} else if ("answer".equals(localName)) {
-				question.answer = parseAnswer();
-			}
-		}
+        private fun getChars(): String {
+            val ch = chars.toString().trim { it <= ' ' }
+            chars.delete(0, chars.length)
+            return ch
+        }
+    }
 
-		private int parseAnswer() throws SAXException {
-			String ch = getChars();
-			try{
-				return Integer.valueOf(ch);
-			}catch(NumberFormatException e){
-				throw throwException("invalid answer index " + ch);
-			} 
-		}
-		
-		private void finishQuestion() throws SAXException {
-			if (question.choices.size() == 0)
-				throwException("must have at least one choice");
-			if (question.answer < 0
-					|| question.answer >= question.choices.size())
-				throwException("invalid answer index");
-			if (question.text == null && question.image == null
-					&& question.audio == null)
-				throwException("question must contain at least one of text, image, and audio tags");
-			dataSource.addQuestion(category.id, question.text, question.image,
-					question.audio, question.choices, question.answer);
-			question = null;
-			questionCount ++;
-		}
+    companion object {
+        private const val TAG = "QuizXml"
+    }
 
-		private void finishCategory() throws SAXException {
-			if (category.title == null)
-				throwException("missing category title");
-			dataSource.updateCategory(category.id, category.title,
-					category.text, "", 0);
-			category = null;
-		}
-
-		private SAXException throwException(String message) throws SAXException {
-			throw new SAXException("error while parsing question "
-					+ questionCount + " in category "
-					+ (category == null ? "??" : category.id) + ": " + message);
-		}
-
-		private String getChars() {
-			String ch = chars.toString().trim();
-			chars.delete(0, chars.length());
-			return ch;
-		}
-	}
-
+    init {
+        dataSource = DataSource(context)
+    }
 }

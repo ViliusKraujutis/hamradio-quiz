@@ -1,8 +1,9 @@
-package com.lt.lrmd.hamradio.quiz;
+package com.lt.lrmd.hamradio.quiz
 
-public interface Constants {
-
-	public static final int MODE_DEFAULT = 0;
-	public static final int MODE_QUIZ = 1;
-	public static final int MODE_FLASHCARD = 2;
+interface Constants {
+    companion object {
+        const val MODE_DEFAULT = 0
+        const val MODE_QUIZ = 1
+        const val MODE_FLASHCARD = 2
+    }
 }

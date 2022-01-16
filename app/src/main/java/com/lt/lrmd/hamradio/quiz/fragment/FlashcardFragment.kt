@@ -1,89 +1,77 @@
-package com.lt.lrmd.hamradio.quiz.fragment;
+package com.lt.lrmd.hamradio.quiz.fragment
 
-import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
-import android.widget.ViewFlipper;
+import com.lt.lrmd.hamradio.quiz.fragment.QuestionFragment
+import com.lt.lrmd.hamradio.quiz.R
+import android.widget.TextView
+import android.widget.ViewFlipper
+import android.os.Bundle
+import android.view.View
+import android.widget.Button
+import com.lt.lrmd.hamradio.quiz.fragment.FlashcardFragment
+import com.tekle.oss.android.animation.AnimationFactory.FlipDirection
+import com.tekle.oss.android.animation.AnimationFactory
+import com.lt.lrmd.hamradio.quiz.model.Question
 
-import com.lt.lrmd.hamradio.quiz.R;
-import com.lt.lrmd.hamradio.quiz.model.Question;
-import com.tekle.oss.android.animation.AnimationFactory;
-import com.tekle.oss.android.animation.AnimationFactory.FlipDirection;
+class FlashcardFragment : QuestionFragment() {
+    @InjectView(R.id.answerText)
+    private val mAnswerText: TextView? = null
 
-public class FlashcardFragment extends QuestionFragment {
-	private static final int ANSWER_CHILD_INDEX = 1;
-	private static final int QUESTION_CHILD_INDEX = 0;
-	
-	private static final FlipDirection QUESTION_TO_ANSWER_DIR = FlipDirection.LEFT_RIGHT;
-	private static final FlipDirection ANSWER_TO_QUESTION_DIR = FlipDirection.RIGHT_LEFT;
+    @InjectView(R.id.flipper)
+    private val mViewFlipper: ViewFlipper? = null
 
-	private static final String SHOWING_ANSWER_KEY = "showingAnswer";
-	
-	@InjectView(R.id.answerText)
-	private TextView mAnswerText;
+    @InjectView(R.id.buttons)
+    private val mButtons: View? = null
 
-	@InjectView(R.id.flipper)
-	private ViewFlipper mViewFlipper;
+    @InjectView(R.id.show)
+    private val mShowButton: Button? = null
+    private var mShowingAnswer = false
+    override fun getLayoutResourceId(): Int {
+        return R.layout.flashcard_fragment
+    }
 
-	@InjectView(R.id.buttons)
-	private View mButtons;
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        mAnswerText!!.text = mApp.htmlCache.getHtml(
+            mQuestion.choices[mQuestion.answer]
+        )
+        mAnswerText.textSize = mApp.config.fontSize().toFloat()
+        mShowButton!!.setOnClickListener { toggleShowingAnswer() }
+        if (savedInstanceState != null) {
+            mShowingAnswer = savedInstanceState.getBoolean(SHOWING_ANSWER_KEY)
+        }
+        if (mShowingAnswer) {
+            mViewFlipper!!.displayedChild = ANSWER_CHILD_INDEX
+        } else {
+            mViewFlipper!!.displayedChild = QUESTION_CHILD_INDEX
+        }
+    }
 
-	@InjectView(R.id.show)
-	private Button mShowButton;
+    private fun toggleShowingAnswer() {
+        val direction = if (mShowingAnswer) ANSWER_TO_QUESTION_DIR else QUESTION_TO_ANSWER_DIR
+        AnimationFactory.flipTransition(mViewFlipper, direction)
+        mShowButton!!.setText(if (mShowingAnswer) R.string.show_question else R.string.show_answer)
+        mShowingAnswer = !mShowingAnswer
+    }
 
-	private boolean mShowingAnswer;
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean(SHOWING_ANSWER_KEY, mShowingAnswer)
+    }
 
-	@Override
-	protected int getLayoutResourceId() {
-		return R.layout.flashcard_fragment;
-	}
+    override fun isNextQuestionButtonEnabled(): Boolean {
+        return true
+    }
 
-	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
-		mAnswerText.setText(mApp.getHtmlCache().getHtml(
-				mQuestion.getChoices()[mQuestion.getAnswer()]));
-		mAnswerText.setTextSize(mApp.getConfig().fontSize());
-		mShowButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				toggleShowingAnswer();
-			}
-		});
-		if(savedInstanceState != null){
-			mShowingAnswer = savedInstanceState.getBoolean(SHOWING_ANSWER_KEY);
-		}
-		if(mShowingAnswer){
-			mViewFlipper.setDisplayedChild(ANSWER_CHILD_INDEX);
-		}else{
-			mViewFlipper.setDisplayedChild(QUESTION_CHILD_INDEX);
-		}
-	}
-
-	private void toggleShowingAnswer() {
-		FlipDirection direction = mShowingAnswer ? ANSWER_TO_QUESTION_DIR
-				: QUESTION_TO_ANSWER_DIR;
-		AnimationFactory.flipTransition(mViewFlipper, direction);
-		mShowButton.setText(mShowingAnswer ? R.string.show_question
-				: R.string.show_answer);
-		mShowingAnswer = !mShowingAnswer;
-	}
-
-	@Override
-	public void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		outState.putBoolean(SHOWING_ANSWER_KEY, mShowingAnswer);
-	}
-	
-	@Override
-	protected boolean isNextQuestionButtonEnabled() {
-		return true;
-	}
-	
-	public static FlashcardFragment newInstance(Question question, boolean isLastQuestion){
-		FlashcardFragment fragment = new FlashcardFragment();
-		fragment.setArguments(newArguments(question, isLastQuestion));
-		return fragment;
-	}
+    companion object {
+        private const val ANSWER_CHILD_INDEX = 1
+        private const val QUESTION_CHILD_INDEX = 0
+        private val QUESTION_TO_ANSWER_DIR = FlipDirection.LEFT_RIGHT
+        private val ANSWER_TO_QUESTION_DIR = FlipDirection.RIGHT_LEFT
+        private const val SHOWING_ANSWER_KEY = "showingAnswer"
+        fun newInstance(question: Question?, isLastQuestion: Boolean): FlashcardFragment {
+            val fragment = FlashcardFragment()
+            fragment.arguments = newArguments(question, isLastQuestion)
+            return fragment
+        }
+    }
 }

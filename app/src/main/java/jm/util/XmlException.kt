@@ -1,65 +1,51 @@
-package jm.util;
+package jm.util
 
-public class XmlException extends Exception {
-	private static final long serialVersionUID = 1L;
+import java.lang.Exception
+import java.lang.StringBuilder
+import kotlin.jvm.JvmOverloads
 
-	private String file;
-	private int line = -1;
-	
-	public XmlException() {
-		super(); 
-	}
-	
-	public XmlException(String message, Throwable cause) {
-		super(message, cause); 
-	}
+class XmlException : Exception {
+    var file: String? = null
+        private set
+    var line = -1
+        private set
 
-	public XmlException(String message) {
-		super(message); 
-	}
+    constructor() : super() {}
+    constructor(message: String?, cause: Throwable?) : super(message, cause) {}
+    constructor(message: String?) : super(message) {}
+    constructor(cause: Throwable?) : super(cause) {}
 
-	public XmlException(Throwable cause) {
-		super(cause); 
-	}
+    @JvmOverloads
+    constructor(message: String?, file: String?, line: Int = -1) : super(message) {
+        this.file = file
+        this.line = line
+    }
 
-	public XmlException(String message, String file, int line){
-		super(message);
-		this.file = file;
-		this.line = line;
-	}
-	
-	public XmlException(String message, String file, int line, Throwable cause){
-		super(message, cause);
-		this.file = file;
-		this.line = line;
-	}
-	
-	public XmlException(String message, String file){
-		this(message, file, -1);
-	}
-	
-	public XmlException(String message, String file, Throwable cause){
-		this(message,file,-1,cause);
-	}
+    constructor(message: String?, file: String?, line: Int, cause: Throwable?) : super(
+        message,
+        cause
+    ) {
+        this.file = file
+        this.line = line
+    }
 
-	
-	public String getFile() {
-		return file;
-	}
+    constructor(message: String?, file: String?, cause: Throwable?) : this(
+        message,
+        file,
+        -1,
+        cause
+    ) {
+    }
 
-	public int getLine() {
-		return line;
-	}
+    override fun toString(): String {
+        val sb = StringBuilder("XmlException")
+        if (file != null) sb.append(" in ").append(file)
+        if (line != -1) sb.append(" at line ").append(line)
+        sb.append(": ").append(message)
+        return sb.toString()
+    }
 
-	@Override
-	public String toString(){
-		StringBuilder sb = new StringBuilder("XmlException");
-		if(file != null)
-			sb.append(" in ").append(file);
-		if(line != -1)
-			sb.append(" at line ").append(line);
-		sb.append(": ").append(getMessage());
-		return sb.toString();
-	}
-	
+    companion object {
+        private const val serialVersionUID = 1L
+    }
 }

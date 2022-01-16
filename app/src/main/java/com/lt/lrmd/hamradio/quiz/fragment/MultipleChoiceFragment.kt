@@ -1,75 +1,60 @@
-package com.lt.lrmd.hamradio.quiz.fragment;
- 
+package com.lt.lrmd.hamradio.quiz.fragment
 
-import android.os.Bundle;
-import android.view.View;
-import android.view.View.OnClickListener;
+import com.lt.lrmd.hamradio.quiz.fragment.QuestionFragment
+import com.lt.lrmd.hamradio.quiz.R
+import android.os.Bundle
+import android.view.View
+import com.lt.lrmd.hamradio.quiz.fragment.MultipleChoiceFragment
+import com.lt.lrmd.hamradio.quiz.fragment.MultipleChoiceFragment.ButtonListener
+import com.lt.lrmd.hamradio.quiz.model.Question
+import com.lt.lrmd.hamradio.quiz.view.QuizButton
 
-import com.lt.lrmd.hamradio.quiz.R;
-import com.lt.lrmd.hamradio.quiz.model.Question;
-import com.lt.lrmd.hamradio.quiz.view.QuizButton;
+class MultipleChoiceFragment : QuestionFragment() {
+    override fun getLayoutResourceId(): Int {
+        return if (mApp.config.fixedLayout()) R.layout.multiple_choice_fragment_fixed_buttons else R.layout.multiple_choice_fragment_scroll_buttons
+    }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        for (i in sAnswerButtonIds.indices) view.findViewById<View>(
+            sAnswerButtonIds[i]
+        ).setOnClickListener(ButtonListener(i))
+    }
 
-public class MultipleChoiceFragment extends QuestionFragment {
-	private static final int[] sAnswerButtonIds = new int[]{
-		R.id.answer1, R.id.answer2, R.id.answer3, R.id.answer4
-	}; 
-	
-	@Override
-	protected int getLayoutResourceId() {
-		return mApp.getConfig().fixedLayout() ?
-				R.layout.multiple_choice_fragment_fixed_buttons :
-					R.layout.multiple_choice_fragment_scroll_buttons;
-	}
+    override fun onAnswerChanged() {
+        super.onAnswerChanged()
+        val view = view ?: return
+        val question = mQuestion ?: return
+        for (i in sAnswerButtonIds.indices) {
+            val btn = view.findViewById(sAnswerButtonIds[i]) as QuizButton
+            val showingAnswer = mAnswer != NO_ANSWER
+            if (i < question.choices.size) {
+                btn.setVisibility(View.VISIBLE)
+                btn.isShowingAnswer = showingAnswer
+                btn.isCorrect = i == question.answer
+                btn.setText(mApp.htmlCache.getHtml(question.choices[i]))
+                btn.setClickable(!showingAnswer)
+            } else {
+                btn.setVisibility(View.GONE)
+            }
+        }
+    }
 
-	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
-		for(int i=0;i<sAnswerButtonIds.length;i++)
-			view.findViewById(sAnswerButtonIds[i]).setOnClickListener(new ButtonListener(i));
-		
-	}
-	
-	@Override
-	protected void onAnswerChanged() {
-		super.onAnswerChanged();
-		View view  = getView();
-		if(view == null) 
-			return;
-		Question question = mQuestion;
-		if(question == null)
-			return;
-		
-		for(int i=0;i<sAnswerButtonIds.length;i++){
-			QuizButton btn = (QuizButton) view.findViewById(sAnswerButtonIds[i]);
-			boolean showingAnswer = mAnswer != NO_ANSWER;
-			
-			if(i < question.getChoices().length){
-				btn.setVisibility(View.VISIBLE);
-				btn.setShowingAnswer(showingAnswer);
-				btn.setCorrect(i == question.getAnswer());
-				btn.setText(mApp.getHtmlCache().getHtml(question.getChoices()[i]));
-				btn.setClickable(!showingAnswer);
-			}else{
-				btn.setVisibility(View.GONE);
-			}
-		}
-	} 
-	
-	private class ButtonListener implements OnClickListener {
-		private final int mIndex;
-		public ButtonListener(int index){
-			mIndex = index;
-		}
-		@Override
-		public void onClick(View v) { 
-			setAnswer(mIndex);
-		}
-	}
-	
-	public static MultipleChoiceFragment newInstance(Question question, boolean isLastQuestion){
-		MultipleChoiceFragment fragment = new MultipleChoiceFragment();
-		fragment.setArguments(newArguments(question, isLastQuestion));
-		return fragment;
-	}
+    private inner class ButtonListener(private val mIndex: Int) : View.OnClickListener {
+        override fun onClick(v: View) {
+            setAnswer(mIndex)
+        }
+    }
+
+    companion object {
+        private val sAnswerButtonIds = intArrayOf(
+            R.id.answer1, R.id.answer2, R.id.answer3, R.id.answer4
+        )
+
+        fun newInstance(question: Question?, isLastQuestion: Boolean): MultipleChoiceFragment {
+            val fragment = MultipleChoiceFragment()
+            fragment.arguments = newArguments(question, isLastQuestion)
+            return fragment
+        }
+    }
 }

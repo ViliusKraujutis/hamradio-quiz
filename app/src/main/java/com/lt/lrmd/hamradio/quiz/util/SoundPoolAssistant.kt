@@ -1,121 +1,118 @@
-package com.lt.lrmd.hamradio.quiz.util;
+package com.lt.lrmd.hamradio.quiz.util
 
-import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import android.content.Context;
-import android.content.res.AssetFileDescriptor;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
-import android.media.SoundPool;
-import android.util.Log;
-import android.util.SparseIntArray;
+import android.content.Context
+import android.media.SoundPool
+import com.lt.lrmd.hamradio.quiz.util.SoundPoolAssistant.VolumeMode
+import android.util.SparseIntArray
+import kotlin.Throws
+import android.content.res.AssetFileDescriptor
+import com.lt.lrmd.hamradio.quiz.util.SoundPoolAssistant
+import android.media.AudioManager
+import android.util.Log
+import java.io.IOException
+import java.util.LinkedHashMap
 
 /**
- * Facade class to play sounds using a {@link MediaPlayer} (assets) or
- * {@link SoundPool} (resources)
+ * Facade class to play sounds using a [MediaPlayer] (assets) or
+ * [SoundPool] (resources)
  */
-public class SoundPoolAssistant {
-	private static final String TAG = "SoundPoolAssistant";
+class SoundPoolAssistant(private val mContext: Context, maxStreams: Int, streamType: Int) {
+    /**
+     * Passed to ...
+     */
+    enum class VolumeMode {
+        /**
+         * Use the system volume settings.
+         */
+        SYSTEM,
 
-	/**
-	 * Passed to ...
-	 */
-	public static enum VolumeMode {
-		/**
-		 * Use the system volume settings.
-		 */
-		SYSTEM,
-		/**
-		 * Use the volume passed to {@link SoundPoolAssistant#setVolume(float)}.
-		 */
-		FIXED,
-		/**
-		 * Don't play any sounds.
-		 */
-		MUTE;
-	};
+        /**
+         * Use the volume passed to [SoundPoolAssistant.setVolume].
+         */
+        FIXED,
 
-	private final SoundPool mSoundPool;
-	private final Context mContext;
-	private VolumeMode mVolumeMode = VolumeMode.SYSTEM;
-	private float mVolume;
+        /**
+         * Don't play any sounds.
+         */
+        MUTE
+    }
 
-	private final Map<String, Integer> mPathToSoundId = new LinkedHashMap<String, Integer>();
-	private final SparseIntArray mResIdToSoundId = new SparseIntArray();
+    private val mSoundPool: SoundPool
+    private var mVolumeMode = VolumeMode.SYSTEM
+    private var mVolume = 0f
+    private val mPathToSoundId: MutableMap<String, Int> = LinkedHashMap()
+    private val mResIdToSoundId = SparseIntArray()
+    fun setVolumeMode(mode: VolumeMode) {
+        mVolumeMode = mode
+    }
 
-	public void setVolumeMode(VolumeMode mode) {
-		mVolumeMode = mode;
-	}
+    fun setVolume(volume: Float) {
+        require(!(volume < 0 || volume > 1)) { "volume must be >= 0 and <= 1" }
+        mVolume = volume
+    }
 
-	public void setVolume(float volume) {
-		if (volume < 0 || volume > 1)
-			throw new IllegalArgumentException("volume must be >= 0 and <= 1");
-		mVolume = volume;
-	}
+    /**
+     *
+     * @param assetFileName
+     * @param reference
+     */
+    @Throws(IOException::class)
+    fun load(path: String) {
+        val afd = mContext.assets.openFd(path)
+        mPathToSoundId[path] = mSoundPool.load(afd, 0)
+    }
 
-	public SoundPoolAssistant(Context context, int maxStreams, int streamType) {
-		mContext = context;
-		mSoundPool = new SoundPool(maxStreams, streamType, 0);
-	}
+    /**
+     *
+     * @param resourceId
+     * @param reference
+     */
+    fun load(resourceId: Int) {
+        mResIdToSoundId.put(
+            resourceId,
+            mSoundPool.load(mContext, resourceId, 0)
+        )
+    }
 
-	/**
-	 * 
-	 * @param assetFileName
-	 * @param reference
-	 */
-	public void load(String path) throws IOException {
-		AssetFileDescriptor afd = mContext.getAssets().openFd(path);
-		mPathToSoundId.put(path, mSoundPool.load(afd, 0));
-	}
+    fun play(resId: Int) {
+        val soundId = mResIdToSoundId[resId]
+        soundId?.let { playSoundId(it) }
+            ?: Log.w(
+                TAG,
+                "sound not loaded for resource id $resId"
+            )
+    }
 
-	/**
-	 * 
-	 * @param resourceId
-	 * @param reference
-	 */
-	public void load(int resourceId) {
-		mResIdToSoundId.put(resourceId,
-				mSoundPool.load(mContext, resourceId, 0));
-	}
+    fun play(path: String) {
+        val soundId = mPathToSoundId[path]
+        soundId?.let { playSoundId(it) }
+            ?: Log.w(TAG, "sound not loaded for path $path")
+    }
 
-	public void play(int resId) {
-		Integer soundId = mResIdToSoundId.get(resId);
-		if (soundId == null) {
-			Log.w(TAG, "sound not loaded for resource id " + resId);
-		}else{
-			playSoundId(soundId);
-		}
-	}
+    val isSoundEnabled: Boolean
+        get() = actualVolume > 0
 
-	public void play(String path) {
-		Integer soundId = mPathToSoundId.get(path);
-		if(soundId == null){
-			Log.w(TAG, "sound not loaded for path " + path);
-		}else{
-			playSoundId(soundId);
-		}
-	}
-	
-	public boolean isSoundEnabled(){
-		return getActualVolume() > 0;
-	}
-	
-	private void playSoundId(int soundId) {
-		float vol = getActualVolume();
-		if( vol != 0 ){
-			mSoundPool.play(soundId, vol, vol, 0, 0, 1);
-		}
-	}
-	
-	private float getActualVolume(){
-		if(mVolumeMode == VolumeMode.MUTE)
-			return 0;
-		if(mVolumeMode == VolumeMode.FIXED && mVolume >= 0 && mVolume <= 1)
-			return mVolume;
-		AudioManager am = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
-		return (float) am.getStreamMaxVolume(AudioManager.STREAM_MUSIC) /
-				(float) am.getStreamVolume(AudioManager.STREAM_MUSIC);
-	}
+    private fun playSoundId(soundId: Int) {
+        val vol = actualVolume
+        if (vol != 0f) {
+            mSoundPool.play(soundId, vol, vol, 0, 0, 1f)
+        }
+    }
+
+    private val actualVolume: Float
+        private get() {
+            if (mVolumeMode == VolumeMode.MUTE) return 0
+            if (mVolumeMode == VolumeMode.FIXED && mVolume >= 0 && mVolume <= 1) return mVolume
+            val am = mContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+            return am.getStreamMaxVolume(AudioManager.STREAM_MUSIC).toFloat() /
+                    am.getStreamVolume(AudioManager.STREAM_MUSIC).toFloat()
+        }
+
+    companion object {
+        private const val TAG = "SoundPoolAssistant"
+    }
+
+    init {
+        mSoundPool = SoundPool(maxStreams, streamType, 0)
+    }
 }

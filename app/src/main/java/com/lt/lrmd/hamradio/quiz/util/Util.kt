@@ -1,63 +1,58 @@
-package com.lt.lrmd.hamradio.quiz.util;
+package com.lt.lrmd.hamradio.quiz.util
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import android.app.AlertDialog
+import android.content.Context
+import com.lt.lrmd.hamradio.quiz.R
+import android.content.pm.PackageManager
+import java.io.*
+import java.lang.Exception
+import java.lang.RuntimeException
 
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.pm.PackageManager.NameNotFoundException;
+object Util {
+    fun serialize(`object`: Any?): ByteArray {
+        val bytes = ByteArrayOutputStream()
+        val out: ObjectOutputStream
+        return try {
+            out = ObjectOutputStream(bytes)
+            out.writeObject(`object`)
+            bytes.toByteArray()
+        } catch (e: IOException) {
+            throw RuntimeException(e)
+        }
+    }
 
-import com.lt.lrmd.hamradio.quiz.R;
+    fun deserialize(bytes: ByteArray?): Any {
+        return try {
+            val bin = ByteArrayInputStream(bytes)
+            val `in` = ObjectInputStream(bin)
+            `in`.readObject()
+        } catch (e: Exception) {
+            throw RuntimeException(e)
+        }
+    }
 
-public class Util {
-	private Util(){}
-	public static byte[] serialize(Object object){
-		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-		ObjectOutputStream out;
-		try {
-			out = new ObjectOutputStream(bytes);
-			out.writeObject(object);
-			return bytes.toByteArray();
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
-	
-	public static Object deserialize(byte[] bytes){
-		try {
-			ByteArrayInputStream bin = new ByteArrayInputStream(bytes);
-			ObjectInputStream in = new ObjectInputStream(bin);
-			return in.readObject();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-	
+    fun errorAlert(context: Context?, message: String?) {
+        AlertDialog.Builder(context, R.style.AlertDialog)
+            .setTitle("FAIL!").setMessage(message)
+            .setIcon(R.drawable.emo_im_wtf)
+            .setPositiveButton("OK", null)
+            .show()
+    }
 
-	public static void errorAlert(Context context,  String message){
-		new AlertDialog.Builder(context, R.style.AlertDialog)
-			.setTitle("FAIL!").setMessage(message)
-			.setIcon(R.drawable.emo_im_wtf)
-			.setPositiveButton("OK", null)
-			.show();
-	}
-	
-	public static File getSharedPrefsFile(Context context, String fileName){
-		File dataDir = getDataDir(context);
-		return new File(dataDir, fileName);
-	}
-	
-	public static File getDataDir(Context context) {
-		try {
-			return new File(context.getPackageManager().getPackageInfo(
-					context.getPackageName(), 0).applicationInfo.dataDir);
-		} catch (NameNotFoundException e) {
-			throw new RuntimeException(e);
-		}
+    fun getSharedPrefsFile(context: Context, fileName: String?): File {
+        val dataDir = getDataDir(context)
+        return File(dataDir, fileName)
+    }
 
-	}
+    fun getDataDir(context: Context): File {
+        return try {
+            File(
+                context.packageManager.getPackageInfo(
+                    context.packageName, 0
+                ).applicationInfo.dataDir
+            )
+        } catch (e: PackageManager.NameNotFoundException) {
+            throw RuntimeException(e)
+        }
+    }
 }

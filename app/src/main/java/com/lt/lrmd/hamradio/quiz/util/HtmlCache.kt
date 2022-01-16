@@ -1,23 +1,17 @@
-package com.lt.lrmd.hamradio.quiz.util;
+package com.lt.lrmd.hamradio.quiz.util
 
-import java.util.HashMap;
+import android.text.Spanned
+import android.text.Html
+import java.util.HashMap
 
-import android.text.Html;
-import android.text.Spanned;
-
-public class HtmlCache {
-	private final HashMap<String, Spanned> mCache = 
-			new HashMap<String, Spanned>();
-	
-	public Spanned getHtml(String rawHtml){
-		if(rawHtml == null)
-			return null;
-		
-		Spanned html = mCache.get(rawHtml);
-		if(html == null){
-			mCache.put(rawHtml, html = Html.fromHtml(rawHtml));
-		}
-		return html;
-	}
-
+class HtmlCache {
+    private val mCache = HashMap<String, Spanned>()
+    fun getHtml(rawHtml: String?): Spanned? {
+        if (rawHtml == null) return null
+        var html = mCache[rawHtml]
+        if (html == null) {
+            mCache[rawHtml] = Html.fromHtml(rawHtml).also { html = it }
+        }
+        return html
+    }
 }

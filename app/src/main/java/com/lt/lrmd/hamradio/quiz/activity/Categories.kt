@@ -1,151 +1,125 @@
-package com.lt.lrmd.hamradio.quiz.activity;
+package com.lt.lrmd.hamradio.quiz.activity
 
-import android.app.ListActivity;
-import android.content.Context;
-import android.content.Intent;
-import android.database.Cursor;
-import android.os.Bundle;
-import android.support.v4.widget.CursorAdapter;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.Window;
-import android.widget.ListView;
-import android.widget.TextView;
+import android.content.Context
+import android.database.Cursor
+import android.support.v4.widget.CursorAdapter
+import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
+import android.view.Window
+import android.widget.ListView
+import androidx.cursoradapter.widget.CursorAdapter
+import com.lt.lrmd.hamradio.quiz.Config
+import com.lt.lrmd.hamradio.quiz.model.Category
+import com.lt.lrmd.hamradio.quiz.model.DataSource
 
-import com.google.inject.Inject;
-import com.lt.lrmd.hamradio.quiz.App;
-import com.lt.lrmd.hamradio.quiz.Config;
-import com.lt.lrmd.hamradio.quiz.R;
-import com.lt.lrmd.hamradio.quiz.App.AppInitializationListener;
-import com.lt.lrmd.hamradio.quiz.model.Category;
-import com.lt.lrmd.hamradio.quiz.model.DataSource;
+class Categories : ListActivity() {
+    private val mDataSource = DataSource(this)
 
-public class Categories extends ListActivity {
-	private static final String TAG = Categories.class.getSimpleName();
+    @Inject
+    private val mApp: App? = null
 
+    @Inject
+    private val mConfig: Config? = null
+    override fun onCreatePanelMenu(featureId: Int, menu: Menu): Boolean {
+        Log.d(
+            TAG, "onCreatePanelMenu 0x" + Integer.toHexString(featureId)
+                    + ", ?=" + (featureId == Window.FEATURE_OPTIONS_PANEL)
+        )
+        if (featureId == Window.FEATURE_OPTIONS_PANEL) {
+            val show = onCreateOptionsMenu(menu)
+            Log.d(TAG, "called onCreateOptionsMenu=>$show")
+            return show
+        }
+        return false
+    }
 
-	private DataSource mDataSource = new DataSource(this);
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.categories)
+        mApp.initialize(this, object : AppInitializationListener {
+            override fun onAppInitialized() {
+                initListAdapter()
+            }
+        })
+    }
 
-	@Inject
-	private App mApp;
+    fun openPdfWindowActivity(pdflangobutton: View?) {
+        val intent = Intent(this, PdfWindowActivity::class.java)
+        startActivity(intent)
+    }
 
-	@Inject
-	private Config mConfig;
+    protected override fun onResume() {
+        super.onResume()
+        initListAdapter() // so that we get the updated high scores
+    }
 
-	@Override
-	public boolean onCreatePanelMenu(int featureId, Menu menu) {
-		Log.d(TAG, "onCreatePanelMenu 0x" + Integer.toHexString(featureId)
-				+ ", ?=" + (featureId == Window.FEATURE_OPTIONS_PANEL));
-		if (featureId == Window.FEATURE_OPTIONS_PANEL) {
-			boolean show = onCreateOptionsMenu(menu);
-			Log.d(TAG, "called onCreateOptionsMenu=>" + show);
-			return show;
-		}
-		return false;
-	}
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        getMenuInflater().inflate(R.menu.main, menu)
+        return true
+    }
 
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.categories);
-		mApp.initialize(this, new AppInitializationListener() {
-			@Override
-			public void onAppInitialized() {
-				initListAdapter();
-			}
-		});
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.menu_about -> startActivity(Intent(this, About::class.java))
+            R.id.menu_settings -> startActivity(Intent(this, Settings::class.java))
+            else -> return super.onOptionsItemSelected(item)
+        }
+        return true
+    }
 
-	}
+    protected fun getMode(categoryId: Long): Int {
+        return if (mConfig!!.flashcardMode()) Config.MODE_FLASHCARD else Config.MODE_MULTIPLE_CHOICE
+    }
 
-	public void openPdfWindowActivity(View pdflangobutton) {
-		Intent intent = new Intent(this, PdfWindowActivity.class);
-		startActivity(intent);
-	}
+    protected override fun onListItemClick(l: ListView, v: View, position: Int, id: Long) {
+        startActivity(
+            Intent(this, Quiz::class.java).putExtra(
+                Quiz.CATEGORY_ID_EXTRA, id
+            ).putExtra(
+                Quiz.MODE_EXTRA,
+                getMode(id)
+            )
+        )
+    }
 
-	@Override
-	protected void onResume() {
-		super.onResume();
-		initListAdapter(); // so that we get the updated high scores
-	}
+    private fun initListAdapter() {
+        setListAdapter(Adapter(mDataSource.queryCategories()))
+    }
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.main, menu);
-		return true;
-	}
+    private fun formatScore(score: Float): CharSequence {
+        return (score * 100).toInt().toString() + "%"
+    }
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-		case R.id.menu_about:
-			startActivity(new Intent(this, About.class));
-			break;
-		case R.id.menu_settings:
-			startActivity(new Intent(this, Settings.class));
-			break;
-		default:
-			return super.onOptionsItemSelected(item);
-		}
-		return true;
-	}
+    private inner class Adapter(cursor: Cursor?) : CursorAdapter(this@Categories, cursor, false) {
+        override fun bindView(view: View, context: Context, cursor: Cursor) {
+            val c = Category(cursor)
+            view.findViewById<View>(R.id.iconFrame).visibility = View.GONE
+            (view.findViewById<View>(R.id.title) as TextView).setText(c.title)
+            val text: TextView = view.findViewById<View>(R.id.text) as TextView
+            if (c.text != null) {
+                text.setText(mApp.getHtmlCache().getHtml(c.text))
+            } else {
+                text.setVisibility(View.GONE)
+            }
+            val info: TextView = view.findViewById<View>(R.id.info) as TextView
+            if (c.hasHighScore() && mConfig!!.highScores()) {
+                info.setText(formatScore(c.highScore))
+            } else {
+                info.setVisibility(View.GONE)
+            }
+        }
 
-	protected int getMode(long categoryId) {
-		return mConfig.flashcardMode() ? Config.MODE_FLASHCARD
-				: Config.MODE_MULTIPLE_CHOICE;
-	}
+        override fun newView(context: Context, c: Cursor, root: ViewGroup): View {
+            return getLayoutInflater().inflate(
+                R.layout.category_list_item,
+                root, false
+            )
+        }
+    }
 
-	@Override
-	protected void onListItemClick(ListView l, View v, int position, long id) {
-
-		startActivity(new Intent(this, Quiz.class).putExtra(
-				Quiz.CATEGORY_ID_EXTRA, id).putExtra(Quiz.MODE_EXTRA,
-				getMode(id)));
-	}
-
-	private void initListAdapter() {
-		setListAdapter(new Adapter(mDataSource.queryCategories()));
-	}
-
-	private CharSequence formatScore(float score) {
-		return ((int) (score * 100)) + "%";
-	}
-
-	private class Adapter extends CursorAdapter {
-		public Adapter(Cursor cursor) {
-			super(Categories.this, cursor, false);
-		}
-
-		@Override
-		public void bindView(View view, Context context, Cursor cursor) {
-			Category c = new Category(cursor);
-
-			view.findViewById(R.id.iconFrame).setVisibility(View.GONE);
-
-			((TextView) view.findViewById(R.id.title)).setText(c.getTitle());
-
-			TextView text = (TextView) view.findViewById(R.id.text);
-			if (c.getText() != null) {
-				text.setText(mApp.getHtmlCache().getHtml(c.getText()));
-			} else {
-				text.setVisibility(View.GONE);
-			}
-
-			TextView info = (TextView) view.findViewById(R.id.info);
-			if (c.hasHighScore() && mConfig.highScores()) {
-				info.setText(formatScore(c.getHighScore()));
-			} else {
-				info.setVisibility(View.GONE);
-			}
-		}
-
-		@Override
-		public View newView(Context context, Cursor c, ViewGroup root) {
-			return getLayoutInflater().inflate(R.layout.category_list_item,
-					root, false);
-		}
-
-	}
+    companion object {
+        private val TAG = Categories::class.java.simpleName
+    }
 }
