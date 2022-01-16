@@ -13,7 +13,7 @@ import com.lt.lrmd.hamradio.quiz.model.XmlLoader;
 import com.lt.lrmd.hamradio.quiz.util.AssetCache;
 import com.lt.lrmd.hamradio.quiz.util.HtmlCache;
 
-@Singleton
+@HiltAndroidApp
 public class App {
 	public interface AppInitializationListener {
 		void onAppInitialized(); 

@@ -1,17 +1,12 @@
-package com.lt.lrmd.hamradio.quiz.activity;
-import android.os.Bundle;
-import android.preference.PreferenceActivity;
+package com.lt.lrmd.hamradio.quiz.activity
 
-import com.lt.lrmd.hamradio.quiz.R;
+import android.preference.PreferenceActivity
+import android.os.Bundle
+import com.lt.lrmd.hamradio.quiz.R
 
-public class Settings extends PreferenceActivity {
-
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		addPreferencesFromResource(R.xml.settings); 
-	}
- 
-
-
+class Settings : PreferenceActivity() {
+    public override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        addPreferencesFromResource(R.xml.settings)
+    }
 }

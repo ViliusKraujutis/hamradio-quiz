@@ -17,7 +17,10 @@ import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 
-public class PdfWindowActivity extends Activity {
+import androidx.appcompat.app.AppCompatActivity;
+
+@AndroidEntryPoint
+public class PdfWindowActivity extends AppCompatActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
