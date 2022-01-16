@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.2"
+    compileSdkVersion 30
+    buildToolsVersion "25.0.3"
 
     defaultConfig {
         applicationId "com.lt.lrmd.hamradio.quiz"
         minSdkVersion 11
-        targetSdkVersion 17
+        targetSdkVersion 30
     }
 
     buildTypes {
@@ -19,9 +19,9 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:25.1.1'
-    compile 'com.android.support:appcompat-v7:25.3.1'
+    api 'com.android.support:support-v4:25.4.0'
+    api 'com.android.support:appcompat-v7:25.4.0'
 
-    compile files('libs/guice-2.0-no_aop.jar')
-    compile files('libs/roboguice-2.0.jar')
+    api files('libs/guice-2.0-no_aop.jar')
+    api files('libs/roboguice-2.0.jar')
 }
