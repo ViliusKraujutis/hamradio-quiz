@@ -4,12 +4,12 @@
     android:layout_height="match_parent" >
 
     <TextView
+        android:id="@+id/about_activity_html_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:text="@string/hello_world"
-        android:id="@+id/hello_world"
+        android:text="@string/about_activity_html_source"
         tools:context=".AboutActivity" />
 
 </RelativeLayout>

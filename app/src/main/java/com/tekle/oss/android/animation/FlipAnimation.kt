@@ -116,7 +116,7 @@ class FlipAnimation(
                         1 - (1 - max) * (iter * 2)
                     }
                 }
-                else -> 1
+                else -> 1F
             }
         }
     }

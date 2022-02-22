@@ -62,7 +62,7 @@ class PdfWindowActivity : AppCompatActivity() {
         openPdfFile("santrupos.pdf")
     }
 
-    fun openPdfFile(pdfFileName: String?) {
+    private fun openPdfFile(pdfFileName: String) {
         val intent = Intent(Intent.ACTION_VIEW)
         val path = Environment.getExternalStorageDirectory().absolutePath
         val file = File(path, pdfFileName)

@@ -3,10 +3,10 @@ package com.lt.lrmd.hamradio.quiz.view
 import android.content.Context
 import kotlin.jvm.JvmOverloads
 import com.lt.lrmd.hamradio.quiz.R
-import android.support.v7.widget.AppCompatButton
 import com.lt.lrmd.hamradio.quiz.view.QuizButton
 import android.content.res.TypedArray
 import android.util.AttributeSet
+import androidx.appcompat.widget.AppCompatButton
 
 /**
  * This button has two extra pieces of drawable state: correct: is this button
@@ -36,7 +36,7 @@ class QuizButton @JvmOverloads constructor(
             }
         }
 
-    protected fun onCreateDrawableState(extraSpace: Int): IntArray {
+    protected override fun onCreateDrawableState(extraSpace: Int): IntArray {
         val drawableState: IntArray = super.onCreateDrawableState(extraSpace + 2)
         if (isCorrect) {
             mergeDrawableStates(drawableState, STATE_CORRECT)

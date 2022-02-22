@@ -80,18 +80,13 @@ class Question : QuestionColumns, Parcelable {
         return 0
     }
 
-    companion object {
-        /*
-	 * Parcelable implementation
-	 */
-        val CREATOR: Parcelable.Creator<Question> = object : Parcelable.Creator<Question?> {
-            override fun createFromParcel(source: Parcel): Question? {
-                return Question(source)
-            }
+    companion object CREATOR : Parcelable.Creator<Question> {
+        override fun createFromParcel(parcel: Parcel): Question {
+            return Question(parcel)
+        }
 
-            override fun newArray(size: Int): Array<Question?> {
-                return arrayOfNulls(size)
-            }
+        override fun newArray(size: Int): Array<Question?> {
+            return arrayOfNulls(size)
         }
     }
 }

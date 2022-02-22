@@ -1,15 +1,8 @@
 package com.lt.lrmd.hamradio.quiz.model
 
 import android.content.Context
-import com.lt.lrmd.hamradio.quiz.model.DataSource.reset
-import com.lt.lrmd.hamradio.quiz.model.DataSource.addCategory
-import com.lt.lrmd.hamradio.quiz.model.DataSource.addQuestion
-import com.lt.lrmd.hamradio.quiz.model.DataSource.updateCategory
 import kotlin.Throws
 import android.util.Xml
-import com.lt.lrmd.hamradio.quiz.model.XmlLoader.XmlHandler
-import com.lt.lrmd.hamradio.quiz.model.XmlLoader.CategoryInfo
-import com.lt.lrmd.hamradio.quiz.model.XmlLoader.QuestionInfo
 import org.xml.sax.Attributes
 import org.xml.sax.SAXException
 import org.xml.sax.helpers.DefaultHandler

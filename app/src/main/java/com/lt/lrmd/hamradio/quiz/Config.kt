@@ -1,12 +1,13 @@
 package com.lt.lrmd.hamradio.quiz
 
 import android.content.Context
-import com.google.inject.Inject
+import android.content.SharedPreferences
+import android.preference.PreferenceManager
 import java.io.File
 
-@SuppressLint("WorldReadableFiles")
-@Singleton
-class Config @Inject constructor(private val mContext: Context) {
+//@Singleton
+//@Inject
+class Config constructor(private val mContext: Context) {
     private fun setDefaultPrefs() {
         val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext)
         val prefsTime: Long = prefs.getLong("__mtime", 0)
@@ -58,8 +59,7 @@ class Config @Inject constructor(private val mContext: Context) {
     }
 
     fun numQuestions(): Int {
-        val str: String = prefs.getString(getString(R.string.key_quizLength), "15")
-        return Integer.valueOf(str)
+        return Integer.valueOf(prefs.getString(getString(R.string.key_quizLength), "15")!!)
     }
 
     private fun getString(resId: Int): String {
@@ -75,7 +75,7 @@ class Config @Inject constructor(private val mContext: Context) {
     }
 
     private val prefs: SharedPreferences
-        private get() = PreferenceManager.getDefaultSharedPreferences(mContext)
+        get() = PreferenceManager.getDefaultSharedPreferences(mContext)
 
     companion object {
         const val MODE_MULTIPLE_CHOICE = 0

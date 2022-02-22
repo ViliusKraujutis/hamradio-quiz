@@ -62,15 +62,15 @@ class Category : CategoryColumns, Parcelable {
                 + text + ", mIcon=" + icon + ",mMode=" + mode + "]")
     }
 
-    companion object {
-        val CREATOR: Parcelable.Creator<Category> = object : Parcelable.Creator<Category?> {
-            override fun newArray(size: Int): Array<Category?> {
-                return arrayOfNulls(size)
-            }
-
-            override fun createFromParcel(source: Parcel): Category? {
-                return Category(source)
-            }
-        }
-    }
+//    companion object {
+//        val CREATOR: Parcelable.Creator<Category> = object : Parcelable.Creator<Category?> {
+//            override fun newArray(size: Int): Array<Category?> {
+//                return arrayOfNulls(size)
+//            }
+//
+//            override fun createFromParcel(source: Parcel): Category? {
+//                return Category(source)
+//            }
+//        }
+//    }
 }

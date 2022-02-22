@@ -1,8 +1,11 @@
 package com.lt.lrmd.hamradio.quiz.model
 
+import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
-import com.google.inject.Inject
+import android.database.sqlite.SQLiteDatabase
+import android.database.sqlite.SQLiteOpenHelper
+import android.provider.BaseColumns
 import com.lt.lrmd.hamradio.quiz.util.Util
 import java.io.File
 import java.util.*
@@ -10,7 +13,7 @@ import java.util.*
 /**
  * Provides access to the database.
  */
-class DataSource @Inject constructor(private val context: Context) {
+class DataSource constructor(private val context: Context) {
     interface CategoryColumns : BaseColumns {
         companion object {
             const val TABLE_NAME = "category"
@@ -281,7 +284,7 @@ class DataSource @Inject constructor(private val context: Context) {
     }
 
     companion object {
-        // increasing this value will force the database to be reloaded.  Decreasing 
+        // increasing this value will force the database to be reloaded.  Decreasing
         // it will cause an error.
         const val DB_VERSION = 5
     }

@@ -230,7 +230,7 @@ object AnimationFactory {
      * @see .fadeInAnimation
      */
     fun fadeInAnimation(duration: Long, delay: Long): Animation {
-        val fadeIn: Animation = AlphaAnimation(0, 1)
+        val fadeIn: Animation = AlphaAnimation(0F, 1F)
         fadeIn.interpolator = DecelerateInterpolator()
         fadeIn.duration = duration
         fadeIn.startOffset = delay
@@ -246,7 +246,7 @@ object AnimationFactory {
      * @see .fadeOutAnimation
      */
     fun fadeOutAnimation(duration: Long, delay: Long): Animation {
-        val fadeOut: Animation = AlphaAnimation(1, 0)
+        val fadeOut: Animation = AlphaAnimation(1F, 0F)
         fadeOut.interpolator = AccelerateInterpolator()
         fadeOut.startOffset = delay
         fadeOut.duration = duration
@@ -357,21 +357,21 @@ object AnimationFactory {
         LEFT_RIGHT, RIGHT_LEFT;
 
         val startDegreeForFirstView: Float
-            get() = 0
+            get() = 0F
         val startDegreeForSecondView: Float
             get() = when (this) {
-                LEFT_RIGHT -> (-90).toFloat()
-                RIGHT_LEFT -> 90
-                else -> 0
+                LEFT_RIGHT -> -90F
+                RIGHT_LEFT -> 90F
+                else -> 0F
             }
         val endDegreeForFirstView: Float
             get() = when (this) {
-                LEFT_RIGHT -> 90
-                RIGHT_LEFT -> (-90).toFloat()
-                else -> 0
+                LEFT_RIGHT -> 90F
+                RIGHT_LEFT -> -90F
+                else -> 0F
             }
         val endDegreeForSecondView: Float
-            get() = 0
+            get() = 0F
 
         fun theOtherDirection(): FlipDirection? {
             return when (this) {

@@ -100,9 +100,9 @@ class SoundPoolAssistant(private val mContext: Context, maxStreams: Int, streamT
     }
 
     private val actualVolume: Float
-        private get() {
-            if (mVolumeMode == VolumeMode.MUTE) return 0
-            if (mVolumeMode == VolumeMode.FIXED && mVolume >= 0 && mVolume <= 1) return mVolume
+        get() {
+            if (mVolumeMode == VolumeMode.MUTE) return 0f
+            if (mVolumeMode == VolumeMode.FIXED && mVolume >= 0f && mVolume <= 1f) return mVolume
             val am = mContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
             return am.getStreamMaxVolume(AudioManager.STREAM_MUSIC).toFloat() /
                     am.getStreamVolume(AudioManager.STREAM_MUSIC).toFloat()
