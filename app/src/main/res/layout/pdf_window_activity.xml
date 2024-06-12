@@ -1,0 +1,35 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+        <Button
+            android:id="@+id/pdfbutton1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="27dp"
+            android:onClick="openIstatymasPdf"
+            android:text="@string/istatymai" />
+
+        <Button
+            android:id="@+id/pdfbutton2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/pdfbutton1"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="37dp"
+            android:onClick="openSantrumposPdf"
+            android:text="@string/santrupos" />
+
+        <Button
+            android:id="@+id/pdfbutton3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/pdfbutton2"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="38dp"
+            android:onClick="openAtstojamosiosPdf"
+            android:text="@string/atstojamosios" />
+
+</RelativeLayout>

@@ -1,27 +1,26 @@
 package com.lt.lrmd.hamradio.quiz;
 
-import roboguice.util.SafeAsyncTask;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Application;
 import android.app.ProgressDialog;
+import android.os.AsyncTask;
 import android.util.Log;
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.lt.lrmd.hamradio.quiz.model.DataSource;
 import com.lt.lrmd.hamradio.quiz.model.XmlLoader;
 import com.lt.lrmd.hamradio.quiz.util.AssetCache;
 import com.lt.lrmd.hamradio.quiz.util.HtmlCache;
 
-@Singleton
+import dagger.hilt.android.HiltAndroidApp;
+
 public class App {
 	public interface AppInitializationListener {
 		void onAppInitialized(); 
 	}
 	
 	
-	@Inject
+	//@Inject
 	private Application mContext;
 
 	private AssetCache mAssetCache;
@@ -36,58 +35,58 @@ public class App {
 			callback.onAppInitialized();
 			return;
 		}
-		new InitializeTask(foregroundActivity, callback).execute();
+//		new InitializeTask(foregroundActivity, callback).execute();
 	}
 	
-	private class InitializeTask  extends SafeAsyncTask<Void> {
-		private final Activity mActivity;
-		private final AppInitializationListener mCallback;
-		private final ProgressDialog mProgressDialog;
-		public InitializeTask(Activity foregroundActivity, AppInitializationListener callback){
-			mActivity = foregroundActivity;
-			mCallback = callback;
-			mProgressDialog = new ProgressDialog(mActivity, R.style.ProgressDialog);
-			mProgressDialog.setIndeterminate(true);
-			mProgressDialog.setTitle("Pakrauname duomenis");
-			mProgressDialog.setMessage("Tai nutinka tik pirmo paleidimo metu.");
-		}
-		
-		@Override
-		protected void onPreExecute() throws Exception {
-			mProgressDialog.show();
-		}
-		
-		@Override
-		protected void onFinally() throws RuntimeException {
-			try{
-				mProgressDialog.dismiss();
-			}catch(Exception e){
-				/* sometimes this fails because the activity died*/
-			}
-		}
-		
-		@Override
-		protected void onException(Exception e) throws RuntimeException {
-			Log.e("InitializeTask", "error initializing app", e);
-			new AlertDialog.Builder(mActivity, R.style.AlertDialog)
-				.setTitle("Error loading xml")
-				.setMessage(e.toString())
-				.setPositiveButton("Rats!", null)
-				.create().show();
-		}
-		
-		@Override
-		protected void onSuccess(Void t) throws Exception {
-			mCallback.onAppInitialized();
-		}
-		
-		@Override
-		public Void call() throws Exception {
-			new XmlLoader(mActivity).load(getConfig().questionsFile());
-			return null;
-		}
-		
-	}
+//	private class InitializeTask  extends AsyncTask<Void> {
+//		private final Activity mActivity;
+//		private final AppInitializationListener mCallback;
+//		private final ProgressDialog mProgressDialog;
+//		public InitializeTask(Activity foregroundActivity, AppInitializationListener callback){
+//			mActivity = foregroundActivity;
+//			mCallback = callback;
+//			mProgressDialog = new ProgressDialog(mActivity, R.style.ProgressDialog);
+//			mProgressDialog.setIndeterminate(true);
+//			mProgressDialog.setTitle("Pakrauname duomenis");
+//			mProgressDialog.setMessage("Tai nutinka tik pirmo paleidimo metu.");
+//		}
+//
+//		@Override
+//		protected void onPreExecute() throws Exception {
+//			mProgressDialog.show();
+//		}
+//
+//		@Override
+//		protected void onFinally() throws RuntimeException {
+//			try{
+//				mProgressDialog.dismiss();
+//			}catch(Exception e){
+//				/* sometimes this fails because the activity died*/
+//			}
+//		}
+//
+//		@Override
+//		protected void onException(Exception e) throws RuntimeException {
+//			Log.e("InitializeTask", "error initializing app", e);
+//			new AlertDialog.Builder(mActivity, R.style.AlertDialog)
+//				.setTitle("Error loading xml")
+//				.setMessage(e.toString())
+//				.setPositiveButton("Rats!", null)
+//				.create().show();
+//		}
+//
+//		@Override
+//		protected void onSuccess(Void t) throws Exception {
+//			mCallback.onAppInitialized();
+//		}
+//
+//		@Override
+//		public Void call() throws Exception {
+//			new XmlLoader(mActivity).load(getConfig().questionsFile());
+//			return null;
+//		}
+//
+//	}
 	
 	public AssetCache getAssetCache(){
 		if(mAssetCache == null){
